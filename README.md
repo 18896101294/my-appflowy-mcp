@@ -29,9 +29,69 @@
      irm https://astral.sh/uv/install.ps1 | iex
      ```
 
-2. **AppFlowy 账号**
+2. **Python 环境**
+   - Python 3.12 或更高版本
+   - 可以通过 `python --version` 检查版本
+
+3. **AppFlowy 账号**
    - 确保已注册 AppFlowy 账号
    - 获取 Workspace ID 和 Parent View ID（见下方说明）
+
+### 安装与构建
+
+#### 1. 克隆仓库
+
+```bash
+git clone https://github.com/18896101294/my-appflowy-mcp.git
+cd my-appflowy-mcp
+```
+
+#### 2. 安装依赖
+
+使用 `uv` 自动安装项目依赖：
+
+```bash
+# uv 会自动创建虚拟环境并安装依赖
+uv sync
+```
+
+这将会：
+- 自动创建 Python 虚拟环境（如果不存在）
+- 安装 `pyproject.toml` 中定义的所有依赖：
+  - `mcp >= 1.25.0`
+  - `requests >= 2.32.5`
+- 生成或更新 `uv.lock` 锁定文件
+
+#### 3. 验证安装
+
+检查依赖是否安装成功：
+
+```bash
+# 查看已安装的包
+uv pip list
+```
+
+你应该能看到 `mcp` 和 `requests` 包已成功安装。
+
+#### 4. 获取项目绝对路径
+
+配置 Claude Code 时需要使用项目的绝对路径：
+
+- **macOS / Linux**:
+  ```bash
+  # 在项目目录下执行
+  pwd
+  # 输出示例: /Users/yourname/my-appflowy-mcp
+  ```
+
+- **Windows (PowerShell)**:
+  ```powershell
+  # 在项目目录下执行
+  $PWD.Path
+  # 输出示例: C:\Users\YourName\my-appflowy-mcp
+  ```
+
+记下这个路径，稍后配置时需要使用。
 
 ### 获取 AppFlowy 配置信息
 
@@ -53,7 +113,7 @@
       "command": "uv",
       "args": [
         "run",
-        "/Users/xiangzheng/Codes/my-mcp/appflowy/appflowy_skill.py"
+        "/path/to/your/my-appflowy-mcp/appflowy_skill.py"
       ],
       "env": {
         "APPFLOWY_EMAIL": "your-email@example.com",
@@ -66,7 +126,9 @@
 }
 ```
 
-> ⚠️ **注意**：请将路径 `/Users/xiangzheng/...` 替换为您实际的绝对路径。
+> ⚠️ **注意**：
+> - 将 `/path/to/your/my-appflowy-mcp/appflowy_skill.py` 替换为上一步获取的**绝对路径** + `/appflowy_skill.py`
+> - 例如：如果 `pwd` 输出为 `/Users/john/my-appflowy-mcp`，则完整路径为 `/Users/john/my-appflowy-mcp/appflowy_skill.py`
 
 ### 🪟 方案 B: Windows 配置
 
@@ -87,7 +149,7 @@
       "command": "uv",
       "args": [
         "run",
-        "C:\\Users\\YourUserName\\Codes\\my-mcp\\appflowy\\appflowy_skill.py"
+        "C:\\path\\to\\your\\my-appflowy-mcp\\appflowy_skill.py"
       ],
       "env": {
         "APPFLOWY_EMAIL": "your-email@example.com",
@@ -100,10 +162,18 @@
 }
 ```
 
+**路径配置说明**:
+> ⚠️ **重要**：
+> - 将 `C:\\path\\to\\your\\my-appflowy-mcp\\appflowy_skill.py` 替换为实际路径
+> - **必须使用双反斜杠** `\\` 分隔符
+> - 例如：如果 `$PWD.Path` 输出为 `C:\Users\John\my-appflowy-mcp`，则配置中应写为：
+>   ```
+>   "C:\\Users\\John\\my-appflowy-mcp\\appflowy_skill.py"
+>   ```
+
 **Windows 特别说明**:
 
-1. **uv 命令**: 确保已安装 `uv` 并添加到 PATH 环境变量。如果不确定，可以将 `"command": "uv"` 改为 `uv.exe` 的完整路径。
-2. **路径格式**: 务必使用 `\\` 分隔符（如 `C:\\Users\\...`）。
+**uv 命令**: 确保已安装 `uv` 并添加到 PATH 环境变量。如果不确定，可以将 `"command": "uv"` 改为 `uv.exe` 的完整路径。
 
 ## ✅ 验证与使用
 
@@ -144,6 +214,35 @@ Claude 会自动调用 AppFlowy MCP Server 将内容上传到您配置的 AppFlo
 - "创建一个 AppFlowy 文档，标题是《项目进度》，内容是今天完成的任务列表"
 
 ## 🔧 故障排查
+
+### 依赖安装问题
+
+1. **Python 版本不兼容**:
+   ```bash
+   # 检查 Python 版本
+   python --version
+   # 或
+   python3 --version
+   ```
+   确保版本 >= 3.12。如果版本过低，请升级 Python。
+
+2. **uv sync 失败**:
+   ```bash
+   # 清理缓存并重新安装
+   uv cache clean
+   uv sync --refresh
+   ```
+
+3. **虚拟环境问题**:
+   ```bash
+   # 删除虚拟环境并重新创建
+   rm -rf .venv  # macOS/Linux
+   # 或
+   Remove-Item -Recurse -Force .venv  # Windows PowerShell
+
+   # 重新同步
+   uv sync
+   ```
 
 ### MCP Server 启动失败
 
